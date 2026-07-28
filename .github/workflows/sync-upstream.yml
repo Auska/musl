@@ -24,17 +24,9 @@ jobs:
           git fetch upstream
           git fetch upstream --tags --force
 
-      - name: Sync upstream code and tags
+      - name: Sync upstream code to sync branch
         run: |
-          LOCAL_SHA=$(git rev-parse HEAD)
-          UPSTREAM_SHA=$(git rev-parse upstream/master)
-          echo "Local HEAD:  $LOCAL_SHA"
-          echo "Upstream:    $UPSTREAM_SHA"
-          if [ "$LOCAL_SHA" != "$UPSTREAM_SHA" ]; then
-            echo "Rebasing on upstream $UPSTREAM_SHA"
-            git pull --rebase upstream master
-            git push origin master --force-with-lease
-          else
-            echo "No new upstream commits. Skipping push."
-          fi
+          echo "Upstream: $(git rev-parse upstream/master)"
+          git branch -f sync upstream/master
+          git push origin sync --force
           git push origin --tags --force
