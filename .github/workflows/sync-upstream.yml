@@ -24,31 +24,17 @@ jobs:
           git fetch upstream
           git fetch upstream --tags --force
 
-      - name: Check for new upstream commits
-        id: check
+      - name: Sync upstream code and tags
         run: |
           LOCAL_SHA=$(git rev-parse HEAD)
           UPSTREAM_SHA=$(git rev-parse upstream/master)
           echo "Local HEAD:  $LOCAL_SHA"
           echo "Upstream:    $UPSTREAM_SHA"
-          if [ "$LOCAL_SHA" = "$UPSTREAM_SHA" ]; then
-            echo "No new upstream commits. Skipping push."
-            echo "has_updates=false" >> "$GITHUB_OUTPUT"
+          if [ "$LOCAL_SHA" != "$UPSTREAM_SHA" ]; then
+            echo "Updating to upstream $UPSTREAM_SHA"
+            git push . upstream/master:master
+            git push origin master
           else
-            echo "has_updates=true" >> "$GITHUB_OUTPUT"
+            echo "No new upstream commits. Skipping push."
           fi
-
-      - name: Update to upstream master
-        if: steps.check.outputs.has_updates == 'true'
-        run: |
-          # 快进本地 master 到 upstream/master
-          git push . upstream/master:master
-
-      - name: Push to GitHub
-        if: steps.check.outputs.has_updates == 'true'
-        run: |
-          git push origin master
-
-      - name: Sync tags to GitHub
-        run: |
           git push origin --tags --force
