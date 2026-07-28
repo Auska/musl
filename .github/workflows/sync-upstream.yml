@@ -31,9 +31,9 @@ jobs:
           echo "Local HEAD:  $LOCAL_SHA"
           echo "Upstream:    $UPSTREAM_SHA"
           if [ "$LOCAL_SHA" != "$UPSTREAM_SHA" ]; then
-            echo "Updating to upstream $UPSTREAM_SHA"
-            git push . upstream/master:master
-            git push origin master
+            echo "Rebasing on upstream $UPSTREAM_SHA"
+            git pull --rebase upstream master
+            git push origin master --force-with-lease
           else
             echo "No new upstream commits. Skipping push."
           fi
